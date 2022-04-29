@@ -1,4 +1,4 @@
-import { Schema, Model, model } from 'mongoose';
+import { Schema, Model, model, Document } from 'mongoose';
 
 //interface that describes the properties
 //that are required to create a new User
@@ -15,7 +15,7 @@ interface UserModel extends Model<UserDoc> {
 
 //interface that describes the properties
 //that a User Document has
-interface UserDoc {
+interface UserDoc extends Document {
   email: string;
   password: string;
 }
