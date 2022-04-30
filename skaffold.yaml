@@ -5,10 +5,12 @@ deploy:
     manifests:
       - ./infra/k8s/*
 build:
-  local:
-    push: false
+  #  local:
+  #    push: false
+  googleCloudBuild:
+    projectId: teskerti-dev
   artifacts:
-    - image: siees/auth
+    - image: us.gcr.io/teskerti-dev/auth
       context: auth
       docker:
         dockerfile: Dockerfile
