@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { app } from './App';
+import { app } from './app';
 
 const start = async () => {
   try {
