@@ -28,6 +28,7 @@ const userSchema = new Schema(
     password: { type: String, required: true },
   },
   {
+    timestamps: true,
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id;
