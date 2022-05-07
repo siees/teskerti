@@ -77,4 +77,18 @@ it('reserves a ticket', async () => {
   expect(orders[0].status).toEqual(OrderStatus.Created);
 });
 
-it.todo('publishes an event');
+it('publishes an event', async () => {
+  const ticket = Ticket.build({
+    title: 'title',
+    price: 20,
+  });
+  await ticket.save();
+
+  await request(app)
+    .post('/api/orders')
+    .set('Cookie', global.signup())
+    .send({ ticketId: ticket.id })
+    .expect(201);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
