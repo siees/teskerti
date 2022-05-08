@@ -9,6 +9,8 @@ interface TicketAttrs {
   id: string;
   title: string;
   price: number;
+  // In case we didn't want to work with updateIfCurrentPlugin
+  //version: number;
 }
 
 //interface that describes the properties
@@ -50,6 +52,16 @@ const ticketSchema = new Schema(
 ticketSchema.set('versionKey', 'version');
 
 ticketSchema.plugin(updateIfCurrentPlugin);
+
+// In case we didn't want to work with updateIfCurrentPlugin
+/*const VERSION_INCREMENT_NUMBER = 1;
+ticketSchema.pre('save', function (done) {
+  this.$where = {
+    version: this.get('version') - VERSION_INCREMENT_NUMBER,
+  };
+  done();
+});
+*/
 
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
   return new Ticket({ _id: attrs.id, title: attrs.title, price: attrs.price });
