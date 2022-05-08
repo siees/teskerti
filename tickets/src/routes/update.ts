@@ -5,6 +5,7 @@ import {
   NotFoundError,
   NotAuthorizedError,
   requireAuth,
+  BadRequestError,
 } from '@teskerti/common';
 
 import { Ticket } from '../models/ticket';
@@ -31,6 +32,10 @@ router.put(
     //Ticket not found
     if (!ticket) {
       throw new NotFoundError();
+    }
+    //Ticket is already reserved
+    if (ticket.orderId) {
+      throw new BadRequestError('Cannot edit a reserved ticket');
     }
     //User does not own the ticket
     if (ticket.userId !== req.currentUser!.id) {
