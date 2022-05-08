@@ -1,10 +1,12 @@
 import { Schema, Model, model, Document } from 'mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 import { Order, OrderStatus } from './order';
 
 //interface that describes the properties
 //that are required to create a new Ticket
 interface TicketAttrs {
+  id: string;
   title: string;
   price: number;
 }
@@ -20,6 +22,7 @@ interface TicketModel extends Model<TicketDoc> {
 export interface TicketDoc extends Document {
   title: string;
   price: number;
+  version: number;
 
   isReserved(): Promise<boolean>;
 }
@@ -38,9 +41,13 @@ const ticketSchema = new Schema(
     },
   }
 );
+// Change the version key from __v to version
+ticketSchema.set('versionKey', 'version');
+
+ticketSchema.plugin(updateIfCurrentPlugin);
 
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
-  return new Ticket(attrs);
+  return new Ticket({ _id: attrs.id, title: attrs.title, price: attrs.price });
 };
 
 ticketSchema.methods.isReserved = async function () {
