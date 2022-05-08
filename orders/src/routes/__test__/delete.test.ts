@@ -1,4 +1,5 @@
 import request from 'supertest';
+import mongoose from 'mongoose';
 
 import { app } from '../../app';
 import { Ticket } from '../../models/ticket';
@@ -26,6 +27,7 @@ it('returns status other than 401 if user is signed in', async () => {
 
 it('marks an order as cancelled', async () => {
   const ticket = Ticket.build({
+    id: new mongoose.Types.ObjectId().toHexString(),
     title: 'title',
     price: 20,
   });
@@ -56,6 +58,7 @@ it('marks an order as cancelled', async () => {
 
 it('emits an order cancelled event', async () => {
   const ticket = Ticket.build({
+    id: new mongoose.Types.ObjectId().toHexString(),
     title: 'title',
     price: 20,
   });
