@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 import { app } from './app';
 import { natsWrapper } from './nats-wrapper';
+import { TicketCreatedListener } from './events/listener/ticket-created-listener';
+import { TicketUpdatedListener } from './events/listener/ticket-updated-listener';
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -16,6 +18,10 @@ const start = async () => {
   if (!process.env.NATS_URI) {
     throw new Error('NATS_URI must be defined');
   }
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI must be defined');
+  }
+
   try {
     await natsWrapper.connect(
       process.env.NATS_CLUSTER_ID,
@@ -30,16 +36,11 @@ const start = async () => {
 
     process.on('SIGINT', () => natsWrapper.client.close());
     process.on('SIGTERM', () => natsWrapper.client.close());
-  } catch (error) {
-    console.log(error);
-  }
 
-  if (!process.env.MONGO_URI) {
-    throw new Error('MONGO_URI must be defined');
-  }
-  try {
+    new TicketCreatedListener(natsWrapper.client).listen();
+    new TicketUpdatedListener(natsWrapper.client).listen();
+
     await mongoose.connect(process.env.MONGO_URI);
-
     console.log('Connected to MongoDb');
   } catch (err) {
     console.log(err);
