@@ -1,8 +1,14 @@
+import Link from 'next/link';
+
 const Tickets = ({ currentUser, tickets }) => {
   const ticketList = tickets.map((ticket) => {
     return (
       <tr key={ticket.id}>
-        <td>{ticket.title}</td>
+        <td>
+          <Link href="/tickets/[ticketId]" as={`/tickets/${ticket.id}`}>
+            <a>{ticket.title}</a>
+          </Link>
+        </td>
         <td>{ticket.price}</td>
       </tr>
     );
