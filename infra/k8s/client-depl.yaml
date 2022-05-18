@@ -15,6 +15,9 @@ spec:
       containers:
         - name: client
           image: us.gcr.io/teskerti-dev/client
+          env:
+            - name: STRIPE_PUB_KEY
+              value: 'pk_test_51Ky4eLDtLEblKXOwhAX4T4na13DNZkZ1yNtJGmQG7Jdkg0cvJKScirFHlxTYaRbxdeCJVX6UQoY86QbchJlkH3tu00dAD5SXO2'
 ---
 apiVersion: v1
 kind: Service
