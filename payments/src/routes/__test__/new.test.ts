@@ -3,9 +3,8 @@ import request from 'supertest';
 
 import { app } from '../../app';
 import { Order, OrderStatus } from '../../models/order';
+import { Payment } from '../../models/payment';
 import { stripe } from '../../stripe';
-
-jest.mock('../../stripe');
 
 it('has a route handler listening to /api/payments for post request', async () => {
   const response = await request(app).post('/api/payments').send({});
@@ -65,9 +64,10 @@ it('returns a 400 when purchasing a cancelled order', async () => {
 });
 
 it('returns a 204 with valid inputs', async () => {
+  const price = Math.floor(Math.random() * 100000);
   const order = Order.build({
     id: new mongoose.Types.ObjectId().toHexString(),
-    price: 50,
+    price,
     version: 0,
     status: OrderStatus.Created,
     userId: new mongoose.Types.ObjectId().toHexString(),
@@ -80,8 +80,18 @@ it('returns a 204 with valid inputs', async () => {
     .send({ token: 'tok_visa', orderId: order.id })
     .expect(201);
 
-  const chargeOptions = (stripe.charges.create as jest.Mock).mock.calls[0][0];
-  expect(chargeOptions!.source).toEqual('tok_visa');
-  expect(chargeOptions!.amount).toEqual(order.price * 100);
-  expect(chargeOptions!.currency).toEqual('usd');
+  const stripeCharges = await stripe.charges.list({ limit: 50 });
+  const stripeCharge = stripeCharges.data.find((charge) => {
+    return charge.amount === price * 100;
+  });
+
+  expect(stripeCharge).toBeDefined();
+  expect(stripeCharge!.currency).toEqual('usd');
+
+  const payment = await Payment.findOne({
+    orderId: order.id,
+    stripeId: stripeCharge!.id,
+  });
+
+  expect(payment).not.toBeNull();
 });
